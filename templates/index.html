@@ -1,32 +1,31 @@
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 
 <head>
     <meta charset='utf-8'>
     <title>メモアプリ</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         crossorigin="anonymous">
 </head>
 
 <body class="bg-light">
     <div class="container col-lg-6 mt-5">
-        <form action="/">
-            <div class="form-group">
-                <label for="exampleInputEmail1">Email address</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
-                    placeholder="Enter email">
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
-                    else.</small>
+        <form action="/" method="post" class="d-flex justify-content-center align-items-center">
+            <div class="col-8 pr-2">
+                <input type="text" name="content" class="form-control" placeholder="何をメモしますか？">
             </div>
-            <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-            </div>
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                <label class="form-check-label" for="exampleCheck1">Check me out</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary col-4">投稿</button>
         </form>
+        {{ range $i, $v := . }}
+        <div class="card mt-1">
+            <div class="card-body py-2">
+                <span class="card-text">{{ $v.Content }}</span>
+                <span class="ml-4 text-muted">{{ $v.CreatedAt }}</span>
+            </div>
+        </div>
+        {{ end }}
     </div>
 </body>
 

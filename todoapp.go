@@ -24,7 +24,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	if r.Method == "POST" {
-		result, err := db.Exec(`INSERT INTO tasks(content) VALUES(?)`, "Bomb")
+		content := r.FormValue("content")
+		result, err := db.Exec(`INSERT INTO tasks(content) VALUES(?)`, content)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -42,31 +43,30 @@ func index(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(lastInsertID)
 	}
 
-	rows, err := db.Query(`SELECT id, content, created_at, updated_at FROM tasks`)
+	rows, err := db.Query(`SELECT id, content, created_at, updated_at FROM tasks ORDER BY id DESC`)
 	if err != nil {
 		log.Fatal(err)
 	}
+	type Task struct {
+		Id        int
+		Content   string
+		CreatedAt *time.Time
+		UpdatedAt *time.Time
+	}
+	task := Task{}
+	var tasks []Task
 	for rows.Next() {
-		var id int
-		var content string
-		var createdAt *time.Time
-		var updatedAt *time.Time
-		err = rows.Scan(&id, &content, &createdAt, &updatedAt)
+		err = rows.Scan(&task.Id, &task.Content, &task.CreatedAt, &task.UpdatedAt)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(id, content, createdAt, updatedAt)
-	}
-	item := struct {
-		data string
-	}{
-		"test",
+		tasks = append(tasks, task)
 	}
 	tmpl, err := template.ParseFiles("templates/index.html")
 	if err != nil {
 		panic(err)
 	}
-	err = tmpl.Execute(w, item)
+	err = tmpl.Execute(w, tasks)
 	if err != nil {
 		panic(err)
 	}

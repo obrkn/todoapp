@@ -4,22 +4,51 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func Handler() {
-	db, err := sql.Open("mysql", "root@/todoapp")
+	db, err := sql.Open("mysql", "root@/todoapp?parseTime=true&loc=Asia%2FTokyo")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	result, err := db.Exec(`INSERT INTO tasks(content) VALUES('oppai')`)
+	result, err := db.Exec(`INSERT INTO tasks(content) VALUES(?)`, "Bomb")
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(result)
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(affected)
+
+	lastInsertID, err := result.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(lastInsertID)
+
+	rows, err := db.Query(`SELECT id, content, created_at, updated_at FROM tasks`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		var id int
+		var content string
+		var createdAt *time.Time
+		var updatedAt *time.Time
+		err = rows.Scan(&id, &content, &createdAt, &updatedAt)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(id, content, createdAt, updatedAt)
+	}
+
 	// 	http.HandleFunc("/", index)
 	// 	http.ListenAndServe(":8080", nil)
 }

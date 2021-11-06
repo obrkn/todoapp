@@ -4,34 +4,43 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
+	"text/template"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func Handler() {
+	http.HandleFunc("/", index)
+	http.ListenAndServe(":8080", nil)
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", "root@/todoapp?parseTime=true&loc=Asia%2FTokyo")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	result, err := db.Exec(`INSERT INTO tasks(content) VALUES(?)`, "Bomb")
-	if err != nil {
-		log.Fatal(err)
-	}
+	if r.Method == "POST" {
+		result, err := db.Exec(`INSERT INTO tasks(content) VALUES(?)`, "Bomb")
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(affected)
+		affected, err := result.RowsAffected()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(affected)
 
-	lastInsertID, err := result.LastInsertId()
-	if err != nil {
-		log.Fatal(err)
+		lastInsertID, err := result.LastInsertId()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(lastInsertID)
 	}
-	fmt.Println(lastInsertID)
 
 	rows, err := db.Query(`SELECT id, content, created_at, updated_at FROM tasks`)
 	if err != nil {
@@ -48,23 +57,17 @@ func Handler() {
 		}
 		fmt.Println(id, content, createdAt, updatedAt)
 	}
-
-	// 	http.HandleFunc("/", index)
-	// 	http.ListenAndServe(":8080", nil)
+	item := struct {
+		data string
+	}{
+		"test",
+	}
+	tmpl, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		panic(err)
+	}
+	err = tmpl.Execute(w, item)
+	if err != nil {
+		panic(err)
+	}
 }
-
-// func index(w http.ResponseWriter, r *http.Request) {
-// 	item := struct {
-// 		data string
-// 	}{
-// 		"test",
-// 	}
-// 	tmpl, err := template.ParseFiles("templates/index.html")
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	err = tmpl.Execute(w, item)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// }

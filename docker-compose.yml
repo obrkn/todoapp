@@ -12,6 +12,8 @@ services:
     hostname: db
   
   app:
+    environment:
+      SERVER: dev
     build:
       context: .
     volumes:

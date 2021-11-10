@@ -18,7 +18,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	} else if env == "test" {
 		db, err = sql.Open("mysql", "root@tcp(127.0.0.1)/todoapp?parseTime=true&loc=Asia%2FTokyo")
 	} else {
-		db, err = sql.Open("mysql", "root@tcp(db)/todoapp?parseTime=true&loc=Asia%2FTokyo")
+		db, err = sql.Open("mysql", "root@tcp(127.0.0.1)/todoapp?parseTime=true&loc=Asia%2FTokyo")
 	}
 	if err != nil {
 		log.Fatal(err)
